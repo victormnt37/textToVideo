@@ -23,18 +23,26 @@ interface HeritageItem {
   imageUrl: string;
 }
 
+interface TextToVideoProps {
+  heritageItems: HeritageItem[];
+  // si se quiere meter mas idiomas habra que cambiar
+  // este targetLanguage
+  targetLanguage: "fr" | "en" | "es";
+  descriptionLength: "short" | "extended";
+}
+
 const DEFAULT_IMAGE_URL =
   "https://res.cloudinary.com/worldpackers/image/upload/c_limit,f_auto,q_auto,w_1140/ywx1rgzx6zwpavg3db1f";
 
-export const TextToVideo = () => {
-  const [heritageItems, setHeritageItems] = useState<HeritageItem[]>([]);
+export const TextToVideo = ({
+  heritageItems: initialHeritageItems = [],
+  targetLanguage: initialTargetLanguage = "es",
+  descriptionLength: initialDescriptionLength = "extended",
+}: TextToVideoProps) => {
+  const [heritageItems, setHeritageItems] = useState<HeritageItem[]>(initialHeritageItems);
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
-  const [descriptionLength, setDescriptionLength] = useState<
-    "short" | "extended"
-  >("extended");
-  const [targetLanguage, setTargetLanguage] = useState<"fr" | "en" | "es">(
-    "fr"
-  );
+  const [descriptionLength, setDescriptionLength] = useState<"short" | "extended">(initialDescriptionLength);
+  const [targetLanguage, setTargetLanguage] = useState<"en" | "es" | "fr">(initialTargetLanguage);
   const [displayText, setDisplayText] = useState("");
   const [jsonInput, setJsonInput] = useState("");
   const [jsonError, setJsonError] = useState<string | null>(null);
@@ -101,7 +109,7 @@ export const TextToVideo = () => {
       }
     },
     voiceId: voiceId,
-    apiKey: "sk_b79f1163753aac8d1e5f160f1a378a5ecafa59715d38511a",
+    apiKey: "sk_4de8ca395ae8de01f56aeb8a1ed93cbf706c328635680a0a",
   });
 
   /**
@@ -135,7 +143,7 @@ export const TextToVideo = () => {
         throw new Error("El JSON debe ser un array de objetos");
 
       const validatedItems = parsedItems.map((item, index) => ({
-        id: item.identifier?.toString() || `item-${index}`,
+        id: item.id?.toString() || `item-${index}`,
         name: item.name || `Patrimonio ${index + 1}`,
         description: {
           local: item.description?.local || { short: "", extended: "" },
@@ -307,9 +315,9 @@ export const TextToVideo = () => {
           }
           style={styles.select}
         >
-          <option value="fr">Francés</option>
           <option value="en">Inglés</option>
           <option value="es">Español</option>
+          <option value="fr">Francés</option>
         </select>
 
         <select

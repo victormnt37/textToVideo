@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { translate } from "./translate";
+import { translate } from "./translatePrueba";
 import { useTTSPlayer, PNG_TUBERS } from "./tts11labs";
 
 /**
@@ -131,7 +131,7 @@ export const TextToVideo = ({
       }
     },
     voiceId: "21m00Tcm4TlvDq8ikWAM", // ID de voz ElevenLabs, aqui se cambia la voz
-    apiKey: "sk_b79f1163753aac8d1e5f160f1a378a5ecafa59715d38511a", // ¡ATENCIÓN! clave hardcodeada
+    apiKey: "sk_1291f1412028f9e919d0949c9294f9f1941c753c99773e03", // ¡ATENCIÓN! clave hardcodeada
   });
 
   /**

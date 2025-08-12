@@ -232,6 +232,27 @@ export function useTTSPlayer(options: TTSOptions): UseTTSResponse {
         isPlaying: false,
       }));
       clearProgressInterval();
+
+        if (axios.isAxiosError(error)) {
+          console.error("Código de estado:", error.response?.status);
+
+          if (error.response?.data instanceof Blob) {
+            // Leer el contenido del Blob como texto
+            error.response.data.text().then((text) => {
+              console.error("Respuesta de error (texto):", text);
+              try {
+                const json = JSON.parse(text);
+                console.error("Respuesta de error (JSON):", json);
+              } catch {
+                console.error("No es JSON válido");
+              }
+            });
+          } else {
+            console.error("Respuesta de error:", error.response?.data);
+          }
+        } else {
+          console.error("Error inesperado:", error);
+        }
     }
   };
 
