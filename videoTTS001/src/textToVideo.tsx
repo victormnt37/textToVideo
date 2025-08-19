@@ -43,11 +43,17 @@ export const TextToVideo = ({
   targetLanguage: initialTargetLanguage = "es",
   descriptionLength: initialDescriptionLength = "extended",
 }: TextToVideoProps) => {
-  const [heritageItems, setHeritageItems] = useState<HeritageItem[]>(initialHeritageItems);
+  const [heritageItems, setHeritageItems] =
+    useState<HeritageItem[]>(initialHeritageItems);
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
-  const [descriptionLength, setDescriptionLength] = useState<"short" | "extended">(initialDescriptionLength);
-  const [targetLanguage, setTargetLanguage] = useState<"en" | "es" | "fr">(initialTargetLanguage);
+  const [descriptionLength, setDescriptionLength] = useState<
+    "short" | "extended"
+  >(initialDescriptionLength);
+  const [targetLanguage, setTargetLanguage] = useState<"en" | "es" | "fr">(
+    initialTargetLanguage
+  );
   const [displayText, setDisplayText] = useState("");
+  // TODO: limpiar codigo de input y pruebas rapidas de heritages
   const [jsonInput, setJsonInput] = useState("");
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [testText, setTestText] = useState("");
@@ -56,7 +62,9 @@ export const TextToVideo = ({
   const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
   const [autoAdvance, setAutoAdvance] = useState(false);
   const [isLoadingNext, setIsLoadingNext] = useState(false);
-  const [voiceId, setVoiceId] = useState("Nh2zY9kknu6z4pZy6FhD"); // Voz mujer por defecto
+  const [voiceId, setVoiceId] = useState("Nh2zY9kknu6z4pZy6FhD"); // Voz por defecto
+  const [hoveredLeft, setHoveredLeft] = useState(false);
+  const [hoveredRight, setHoveredRight] = useState(false);
 
   const sentenceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const autoAdvanceRef = useRef(autoAdvance);
@@ -113,7 +121,7 @@ export const TextToVideo = ({
       }
     },
     voiceId: voiceId,
-    apiKey: "sk_4de8ca395ae8de01f56aeb8a1ed93cbf706c328635680a0a",
+    apiKey: "sk_fcf711f6cba8630638aef7a7e1802559a1e9d029461b55cf",
   });
 
   /**
@@ -161,25 +169,6 @@ export const TextToVideo = ({
     } catch (error: any) {
       setJsonError(`Error en el JSON: ${error.message}`);
     }
-  };
-
-  /**
-   * Función para preparar un elemento de prueba rápido
-   * Permite probar la funcionalidad sin necesidad de cargar un JSON completo
-   * Crea un único elemento de patrimonio con los datos proporcionados
-   */
-  const prepareTestItem = () => {
-    setHeritageItems([
-      {
-        id: "test-item",
-        name: "Prueba personalizada",
-        description: {
-          local: { short: testText, extended: testText },
-        },
-        imageUrl: testImageUrl || DEFAULT_IMAGE_URL,
-      },
-    ]);
-    setCurrentItemIndex(0);
   };
 
   /**
@@ -345,84 +334,75 @@ export const TextToVideo = ({
         </button>
       </div>
 
-      <div style={styles.section}>
-        <h3>Cargar datos de patrimonio (JSON)</h3>
-        <textarea
-          value={jsonInput}
-          onChange={(e) => setJsonInput(e.target.value)}
-          placeholder="Pega aquí el JSON con los datos de patrimonio..."
-          style={styles.textarea}
-        />
-
-        {jsonError && <div style={styles.error}>{jsonError}</div>}
-
-        <button onClick={loadHeritageFromJson} style={styles.buttonPrimary}>
-          Cargar JSON
-        </button>
-
-        {heritageItems.length > 0 && (
-          <div style={styles.infoBox}>
-            <strong>{heritageItems.length}</strong> patrimonios cargados
-          </div>
-        )}
-      </div>
-
-      <div style={styles.section}>
-        <h3>Pruebas rápidas</h3>
-        <div>
-          <input
-            type="text"
-            value={testText}
-            onChange={(e) => setTestText(e.target.value)}
-            placeholder="Texto para probar"
-            style={styles.input}
-          />
-          <input
-            type="text"
-            value={testImageUrl}
-            onChange={(e) => setTestImageUrl(e.target.value)}
-            placeholder="URL de imagen (opcional)"
-            style={styles.input}
-          />
-          <button
-            onClick={() => {
-              prepareTestItem();
-              setTimeout(handlePlay, 100);
-            }}
-            style={styles.buttonSuccess}
-          >
-            Probar
-          </button>
-        </div>
-      </div>
-
-      <div style={styles.navigation}>
-        <button
-          onClick={handlePrev}
-          disabled={heritageItems.length === 0}
-          style={styles.navButton}
-          title="Anterior"
-        >
-          ⬅️
-        </button>
-
-        <div style={styles.itemCounter}>
+      {/* TODO: todo lo de dentro del viewer es lo que se hará componente, lo de fuera es temporal */}
+      <div style={styles.viewer}>
+        <div style={styles.itemCounter as React.CSSProperties}>
           {heritageItems.length > 0
             ? `${currentItemIndex + 1}/${heritageItems.length}`
             : "0/0"}
         </div>
 
         <button
+          onClick={handlePrev}
+          disabled={heritageItems.length === 0}
+          style={{
+            ...styles.navButton,
+            ...styles.navButtonLeft,
+          }}
+          title="Anterior"
+          onMouseOver={() => setHoveredLeft(true)}
+          onMouseOut={() => setHoveredLeft(false)}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{
+              width: "24px",
+              height: "24px",
+              transition: "transform 0.2s ease-in-out",
+              transform: hoveredLeft ? "scale(1.5)" : "scale(1)",
+            }}
+          >
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+
+        <button
           onClick={handleNext}
           disabled={heritageItems.length === 0}
-          style={styles.navButton}
+          style={{ ...styles.navButton, ...styles.navButtonRight }}
           title="Siguiente"
+          onMouseOver={() => setHoveredRight(true)}
+          onMouseOut={() => setHoveredRight(false)}
         >
-          ➡️
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{
+              width: "24px",
+              height: "24px",
+              transition: "transform 0.2s ease-in-out",
+              transform: hoveredRight ? "scale(1.5)" : "scale(1)",
+            }}
+          >
+            <path d="M9 6l6 6-6 6" />
+          </svg>
         </button>
-      </div>
 
-      <div style={styles.viewer}>
         <img
           src={currentItem.imageUrl || DEFAULT_IMAGE_URL}
           alt="Background"
@@ -443,8 +423,12 @@ export const TextToVideo = ({
                 transform: `scale(${progress % 10 < 5 ? 4 : 4.05})`,
               }}
             />
+            {/* TODO: darlse estilo al caption */}
             <div style={styles.caption}>
-              {sentences.length > 0 && sentences[currentSentenceIndex]}
+              <h4 style={styles.captionTitle}>{currentItem.name}</h4>
+              <p style={styles.captionText}>
+                {sentences.length > 0 && sentences[currentSentenceIndex]}
+              </p>
             </div>
           </>
         )}
@@ -456,31 +440,52 @@ export const TextToVideo = ({
           </div>
         )}
 
+        <div style={styles.playbackControls}>
+          {!isPlaying ? (
+            <button
+              onClick={handlePlay}
+              disabled={heritageItems.length === 0 || isLoadingNext}
+              style={{
+                ...styles.playButton,
+              }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="40"
+                height="40"
+                viewBox="0 0 24 24"
+                fill="white"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M9 8.5 L9 15.5 L16 12 Z" />
+              </svg>
+            </button>
+          ) : (
+            <button onClick={handleStop} style={styles.stopButton}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="40"
+                height="40"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="10" y1="8" x2="10" y2="16" />
+                <line x1="14" y1="8" x2="14" y2="16" />
+              </svg>
+            </button>
+          )}
+        </div>
+
         <div style={styles.progressBar}>
           <div style={{ ...styles.progressFill, width: `${progress}%` }} />
         </div>
-      </div>
-
-      <div style={styles.playbackControls}>
-        {!isPlaying ? (
-          <button
-            onClick={handlePlay}
-            disabled={heritageItems.length === 0 || isLoadingNext}
-            style={{
-              ...styles.playButton,
-              backgroundColor:
-                heritageItems.length === 0 || isLoadingNext
-                  ? "#ccc"
-                  : "#4285f4",
-            }}
-          >
-            ▶️ Reproducir
-          </button>
-        ) : (
-          <button onClick={handleStop} style={styles.stopButton}>
-            ⏹️ Detener
-          </button>
-        )}
       </div>
     </div>
   );
@@ -573,43 +578,53 @@ const styles = {
     borderRadius: "4px",
     borderLeft: "4px solid #4285f4",
   },
-  navigation: {
-    width: "100%",
-    maxWidth: "800px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: "20px",
+  // TODO: version mobil
+  viewer: {
+    width: "700px",
+    height: "400px",
+    position: "relative" as const,
+    borderRadius: "8px",
+    overflow: "hidden",
+    backgroundColor: "#000",
+    boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
   },
+
+  itemCounter: {
+    position: "absolute",
+    color: "white",
+    top: "10px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    padding: "5px 10px",
+    backgroundColor: "rgba(0,0,0,0.7)",
+    borderRadius: "10px",
+    fontWeight: "bold",
+    zIndex: 2,
+  },
+
   navButton: {
-    padding: "10px 15px",
+    position: "absolute" as const,
+    top: "45%",
+    padding: "10px",
     fontSize: "20px",
-    backgroundColor: "transparent",
+    backgroundColor: "rgba(0,0,0,0.7)",
     border: "none",
-    cursor: "pointer",
     borderRadius: "50%",
     width: "50px",
     height: "50px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    transition: "background-color 0.3s",
+    zIndex: 2,
+    cursor: "pointer",
   },
-  itemCounter: {
-    padding: "5px 10px",
-    backgroundColor: "#f0f0f0",
-    borderRadius: "4px",
-    fontWeight: "bold",
+
+  navButtonLeft: {
+    left: "10px",
   },
-  viewer: {
-    width: "500px",
-    height: "300px",
-    position: "relative" as const,
-    marginBottom: "20px",
-    borderRadius: "8px",
-    overflow: "hidden" as const,
-    backgroundColor: "#000",
-    boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+
+  navButtonRight: {
+    right: "10px",
   },
   backgroundImage: {
     width: "100%",
@@ -634,13 +649,20 @@ const styles = {
     padding: "10px",
     backgroundColor: "rgba(0,0,0,0.7)",
     color: "white",
-    textAlign: "center" as const,
     minHeight: "60px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
     fontSize: "16px",
     lineHeight: "1.4",
+  },
+  captionTitle: {
+    margin: "0 0 5px 0",
+    fontSize: "18px",
+    fontWeight: "bold",
+    marginRight: "1rem",
+  },
+  captionText: {
+    margin: "0",
+    fontSize: "16px",
+    textAlign: "center" as const,
   },
   loadingOverlay: {
     position: "absolute" as const,
@@ -679,29 +701,27 @@ const styles = {
     transition: "width 0.1s linear",
   },
   playbackControls: {
+    position: "absolute" as const,
+    top: "45%",
+    border: "none",
+    borderRadius: "50%",
+    width: "100%",
+    height: "50px",
     display: "flex",
-    gap: "10px",
-    marginBottom: "20px",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 0,
   },
   playButton: {
-    padding: "12px 24px",
-    color: "white",
     border: "none",
-    borderRadius: "4px",
-    fontSize: "16px",
-    fontWeight: "bold",
+    borderRadius: "50%",
+    backgroundColor: "rgba(0,0,0,0.7)",
     cursor: "pointer",
-    transition: "background-color 0.3s",
   },
   stopButton: {
-    padding: "12px 24px",
-    backgroundColor: "#ea4335",
-    color: "white",
     border: "none",
-    borderRadius: "4px",
-    fontSize: "16px",
-    fontWeight: "bold",
+    borderRadius: "50%",
+    backgroundColor: "rgba(0,0,0,0.7)",
     cursor: "pointer",
-    transition: "background-color 0.3s",
   },
 };

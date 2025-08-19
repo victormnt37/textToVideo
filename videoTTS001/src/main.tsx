@@ -425,7 +425,8 @@ heritagesRuta.forEach((heritage) => {
 });
 
 function transformHeritageObject(obj: any) {
-  const IMAGE_BASE_URL = "https://o-city.com/";
+  // TODO: parametrize the image base URL
+  const IMAGE_BASE_URL = "https://eu2.contabostorage.com/7fb97413b6c243adb4347dafa02551a9:ocity/heritage/images/";
   let imageUrl = "";
 
   try {
